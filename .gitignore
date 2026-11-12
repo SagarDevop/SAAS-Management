@@ -1,0 +1,15 @@
+# Root Git Ignore
+node_modules/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+dist/
+dist-ssr/
+build/
+.vscode/
+.idea/
+tmp/
+*.tmp
+

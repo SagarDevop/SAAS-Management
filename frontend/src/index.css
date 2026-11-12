@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    border-color: #E2E8F0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background-color: #F5F7FA;
+    color: #172B4D;
+  }
+}
+
+/* Custom Scrollbar for desktop data tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F5F7FA;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
