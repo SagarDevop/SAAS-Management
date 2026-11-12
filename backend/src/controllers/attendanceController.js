@@ -2,6 +2,7 @@ const Attendance = require('../models/Attendance');
 const Worker = require('../models/Worker');
 const Transaction = require('../models/Transaction');
 const Notification = require('../models/Notification');
+const { sendSMS } = require('../services/smsService');
 const mongoose = require('mongoose');
 
 // @desc    Get attendance for a specific date across all active workers
@@ -167,6 +168,21 @@ exports.saveBulkAttendance = async (req, res) => {
           date: new Date(date),
           createdBy: userId
         });
+      }
+
+      // Send SMS alert to worker if present
+      if (units > 0 && worker.mobile) {
+        const smsMsg = `ShreeDev Paint Service: Namaste ${worker.name}, aapki date ${date} ki attendance (${units} unit) darj ho gayi hai. Aaj ki kamai: Rs.${earnedAmount}.`;
+        sendSMS({
+          toPhone: worker.mobile,
+          message: smsMsg,
+          metadata: {
+            businessId,
+            workerId: worker._id,
+            title: 'Attendance SMS',
+            type: fullAttendance ? 'Full Attendance Marked' : 'Half Attendance Marked'
+          }
+        }).catch(err => console.error('SMS dispatch error:', err));
       }
 
       totalNewLabourExpense += earnedAmount;

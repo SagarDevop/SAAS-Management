@@ -1,6 +1,7 @@
 const Worker = require('../models/Worker');
 const Transaction = require('../models/Transaction');
 const Notification = require('../models/Notification');
+const { sendSMS } = require('../services/smsService');
 
 // Balance convention:
 // NEGATIVE: Business owes money to worker (Earned wages or bonuses subtract from balance)
@@ -171,6 +172,31 @@ exports.recordTransaction = async (req, res) => {
       type: notifType,
       deliveryChannel: 'in_app'
     });
+
+    // Send SMS alert to worker for Advance / Payment / Bonus
+    if (worker.mobile) {
+      let smsText = '';
+      if (type === 'Advance Given') {
+        smsText = `ShreeDev Paint Service: Namaste ${worker.name}, aapko Rs.${parsedAmount} ka advance diya gaya hai.`;
+      } else if (type === 'Salary/Payment Given') {
+        smsText = `ShreeDev Paint Service: Namaste ${worker.name}, aapka payment Rs.${parsedAmount} jama kiya gaya hai.`;
+      } else if (type === 'Bonus Given') {
+        smsText = `ShreeDev Paint Service: Badhai ho ${worker.name}, aapko Rs.${parsedAmount} ka bonus diya gaya hai.`;
+      }
+
+      if (smsText) {
+        sendSMS({
+          toPhone: worker.mobile,
+          message: smsText,
+          metadata: {
+            businessId,
+            workerId: worker._id,
+            title: `${type} SMS`,
+            type: notifType
+          }
+        }).catch(err => console.error('Wallet SMS dispatch error:', err));
+      }
+    }
 
     res.status(201).json({
       success: true,

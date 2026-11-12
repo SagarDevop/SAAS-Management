@@ -2,6 +2,7 @@ const Worker = require('../models/Worker');
 const Transaction = require('../models/Transaction');
 const Attendance = require('../models/Attendance');
 const Notification = require('../models/Notification');
+const { sendSMS } = require('../services/smsService');
 
 // Generate unique Worker ID, e.g., SD-1001, SD-1002
 const generateWorkerId = async (businessId) => {
@@ -191,6 +192,21 @@ exports.createWorker = async (req, res) => {
       type: 'Worker Registration',
       deliveryChannel: 'in_app'
     });
+
+    // Send Welcome SMS to newly registered worker
+    if (worker.mobile) {
+      const welcomeMsg = `ShreeDev Paint Service: Namaste ${worker.name}, aapka registration safalta-purvak ho gaya hai. Aapki Worker ID: ${worker.workerId}, Daily Wage: Rs.${worker.dailyWage}.`;
+      sendSMS({
+        toPhone: worker.mobile,
+        message: welcomeMsg,
+        metadata: {
+          businessId: req.businessId,
+          workerId: worker._id,
+          title: 'Welcome SMS',
+          type: 'Worker Registration'
+        }
+      }).catch(err => console.error('Registration SMS dispatch error:', err));
+    }
 
     res.status(201).json({
       success: true,
