@@ -167,6 +167,7 @@ export default function Attendance() {
         workerId: item.workerId,
         fullAttendance: item.fullAttendance,
         halfAttendance: item.halfAttendance,
+        siteName: item.siteName || '',
         notes: item.notes || ''
       }));
 
@@ -366,12 +367,28 @@ export default function Attendance() {
                     </div>
                   </div>
 
-                  {/* Calculated Day Earning */}
-                  <div className="text-right">
-                    <span className="text-[10px] text-surface-secondary block uppercase">Earned</span>
-                    <span className="text-xs sm:text-sm font-bold font-mono text-navy">
-                      ₹{worker.earnedAmount || 0}
-                    </span>
+                  {/* Calculated Day Earning & Optional Site Name */}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      placeholder="Site Name (Optional)"
+                      value={worker.siteName || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setHasUnsavedChanges(true);
+                        setAttendanceList(prev =>
+                          prev.map(item => item.workerId === worker.workerId ? { ...item, siteName: val } : item)
+                        );
+                      }}
+                      className="hidden sm:block text-[11px] p-1 bg-surface-bg border border-surface-border rounded-sm w-36 text-navy placeholder:text-slate-400 focus:outline-none focus:border-navy"
+                    />
+
+                    <div className="text-right">
+                      <span className="text-[10px] text-surface-secondary block uppercase">Earned</span>
+                      <span className="text-xs sm:text-sm font-bold font-mono text-navy">
+                        ₹{worker.earnedAmount || 0}
+                      </span>
+                    </div>
                   </div>
                 </div>
 

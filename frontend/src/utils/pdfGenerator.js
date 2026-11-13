@@ -205,3 +205,27 @@ export const generateWorkerStatementPDF = ({ businessName, worker, summary, atte
   doc.save(`Statement_${worker.workerId}_${worker.name.replace(/\s+/g, '_')}.pdf`);
 };
 
+// Generate WhatsApp Share Link with worker statement summary
+export const shareWorkerStatementOnWhatsApp = ({ worker, summary }) => {
+  const isNeg = worker.walletBalance < 0;
+  const balanceText = isNeg 
+    ? `Pending Dena Hai: Rs.${Math.abs(worker.walletBalance)}`
+    : `Advance Jama Hai: Rs.${worker.walletBalance}`;
+
+  const text = `*ShreeDev Paint Service - Hisab Statement*
+Worker: ${worker.name} (${worker.workerId})
+Daily Rate: Rs.${worker.dailyWage}
+Total Units Logged: ${summary?.totalUnits || 0}
+Total Wages Earned: Rs.${summary?.totalEarned || 0}
+Advances Given: Rs.${summary?.totalAdvances || 0}
+Payments Cleared: Rs.${summary?.totalPayments || 0}
+*Current Balance: ${balanceText}*
+
+_Statement generated on ${new Date().toLocaleDateString('en-IN')}_`;
+
+  const cleanPhone = (worker.mobile || '').replace(/\D/g, '').slice(-10);
+  const target = cleanPhone ? `91${cleanPhone}` : '';
+  const url = `https://api.whatsapp.com/send?phone=${target}&text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+};
+

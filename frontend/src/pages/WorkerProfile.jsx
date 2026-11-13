@@ -8,7 +8,8 @@ import {
   FileText
 } from 'lucide-react';
 import api from '../services/api';
-import { generateWorkerStatementPDF } from '../utils/pdfGenerator';
+import { generateWorkerStatementPDF, shareWorkerStatementOnWhatsApp } from '../utils/pdfGenerator';
+import { MessageSquare } from 'lucide-react';
 
 export default function WorkerProfile() {
   const { id } = useParams();
@@ -76,13 +77,23 @@ export default function WorkerProfile() {
           <span>Back to Worker Directory</span>
         </Link>
 
-        <button
-          onClick={handleExportPDF}
-          className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 bg-navy text-white text-xs font-semibold uppercase tracking-wider rounded-sm hover:bg-navy-800 transition-colors cursor-pointer shadow-sm"
-        >
-          <Download className="w-3.5 h-3.5" />
-          <span>Export Worker Statement (PDF)</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => shareWorkerStatementOnWhatsApp({ worker, summary })}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer shadow-sm"
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Share via WhatsApp</span>
+          </button>
+
+          <button
+            onClick={handleExportPDF}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-navy text-white text-xs font-semibold uppercase tracking-wider rounded-sm hover:bg-navy-800 transition-colors cursor-pointer shadow-sm"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Export Statement (PDF)</span>
+          </button>
+        </div>
       </div>
 
       {/* Top Profile Summary Card */}

@@ -46,6 +46,7 @@ exports.getAttendanceByDate = async (req, res) => {
         attendanceUnits: existing ? existing.attendanceUnits : 0,
         earnedAmount: existing ? existing.earnedAmount : 0,
         notes: existing ? existing.notes : '',
+        siteName: existing ? existing.siteName : '',
         isSaved: !!existing
       };
     });
@@ -99,7 +100,7 @@ exports.saveBulkAttendance = async (req, res) => {
 
     // Process each worker's attendance idempotently
     for (const record of records) {
-      const { workerId, fullAttendance = false, halfAttendance = false, notes = '' } = record;
+      const { workerId, fullAttendance = false, halfAttendance = false, notes = '', siteName = '' } = record;
 
       const worker = await Worker.findOne({ _id: workerId, businessId });
       if (!worker) continue;
@@ -132,6 +133,7 @@ exports.saveBulkAttendance = async (req, res) => {
         existingAttendance.wageRate = worker.dailyWage;
         existingAttendance.earnedAmount = earnedAmount;
         existingAttendance.notes = notes;
+        if (siteName) existingAttendance.siteName = siteName;
         existingAttendance.updatedBy = userId;
         await existingAttendance.save();
       } else {
@@ -145,6 +147,7 @@ exports.saveBulkAttendance = async (req, res) => {
           wageRate: worker.dailyWage,
           earnedAmount,
           notes,
+          siteName,
           createdBy: userId
         });
       }
