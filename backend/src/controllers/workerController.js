@@ -3,6 +3,7 @@ const Transaction = require('../models/Transaction');
 const Attendance = require('../models/Attendance');
 const Notification = require('../models/Notification');
 const { sendSMS } = require('../services/smsService');
+const { sendWhatsAppMessage } = require('../services/whatsappService');
 
 // Generate unique Worker ID, e.g., SD-1001, SD-1002
 const generateWorkerId = async (businessId) => {
@@ -193,12 +194,26 @@ exports.createWorker = async (req, res) => {
       deliveryChannel: 'in_app'
     });
 
-    // Send Welcome SMS to newly registered worker
+    // Send Welcome WhatsApp & SMS to newly registered worker
     if (worker.mobile) {
-      const welcomeMsg = `ShreeDev Paint Service: Namaste ${worker.name}, aapka registration safalta-purvak ho gaya hai. Aapki Worker ID: ${worker.workerId}, Daily Wage: Rs.${worker.dailyWage}.`;
+      const welcomeMsg = `*ShreeDev Paint Service*\nNamaste ${worker.name}, aapka worker registration safalta-purvak ho gaya hai.\nWorker ID: ${worker.workerId}\nDaily Wage: Rs.${worker.dailyWage}`;
+      
+      // WhatsApp notification
+      sendWhatsAppMessage({
+        toPhone: worker.mobile,
+        textMessage: welcomeMsg,
+        metadata: {
+          businessId: req.businessId,
+          workerId: worker._id,
+          title: 'Welcome WhatsApp',
+          type: 'Worker Registration'
+        }
+      }).catch(err => console.error('Registration WhatsApp error:', err));
+
+      // Backup SMS
       sendSMS({
         toPhone: worker.mobile,
-        message: welcomeMsg,
+        message: `ShreeDev Paint: Namaste ${worker.name}, registration complete. Worker ID: ${worker.workerId}, Wage: Rs.${worker.dailyWage}.`,
         metadata: {
           businessId: req.businessId,
           workerId: worker._id,

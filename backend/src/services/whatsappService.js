@@ -1,36 +1,36 @@
-
 const Notification = require('../models/Notification');
 
-// In development or when WhatsApp credentials are not provided, dispatch acts in simulation mode.
-// In production, configure WHATSAPP_ACCESS_TOKEN and WHATSAPP_PHONE_NUMBER_ID in .env
-const sendWhatsAppTemplateMessage = async ({ toPhone, templateType, params = {} }) => {
+/**
+ * Send WhatsApp Notification via Official Meta WhatsApp Cloud API
+ * @param {string} toPhone - 10 digit recipient mobile number
+ * @param {string} textMessage - Message content body
+ * @param {object} metadata - businessId, workerId, notificationType
+ */
+const sendWhatsAppMessage = async ({ toPhone, textMessage, metadata = {} }) => {
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
   if (!token || !phoneId) {
-    // Graceful simulation: do not claim delivered unless provider responds
-    return {
-      success: false,
-      status: 'pending',
-      note: 'WhatsApp Business API credentials not configured in environment.'
-    };
+    console.log('[WhatsApp Cloud API Simulation] Token or Phone ID not set.');
+    return { success: false, note: 'WhatsApp credentials missing' };
   }
 
-  // Live Meta WhatsApp Cloud API integration payload
+  // Clean phone number: Indian numbers format as 91XXXXXXXXXX
+  let cleanPhone = toPhone.replace(/\D/g, '');
+  if (cleanPhone.length === 10) {
+    cleanPhone = `91${cleanPhone}`;
+  }
+
   try {
+    // Meta WhatsApp Cloud API supports freeform text messages or official hello_world template
     const payload = {
       messaging_product: 'whatsapp',
-      to: toPhone.replace(/\D/g, ''),
-      type: 'template',
-      template: {
-        name: templateType,
-        language: { code: 'en' },
-        components: [
-          {
-            type: 'body',
-            parameters: Object.values(params).map(text => ({ type: 'text', text: String(text) }))
-          }
-        ]
+      recipient_type: 'individual',
+      to: cleanPhone,
+      type: 'text',
+      text: {
+        preview_url: false,
+        body: textMessage
       }
     };
 
@@ -44,16 +44,33 @@ const sendWhatsAppTemplateMessage = async ({ toPhone, templateType, params = {} 
     });
 
     const data = await response.json();
-    if (response.ok) {
-      return { success: true, status: 'sent', data };
-    } else {
-      return { success: false, status: 'failed', error: data };
+    const isSuccess = response.ok && !!data.messages;
+
+    if (metadata.businessId) {
+      await Notification.create({
+        businessId: metadata.businessId,
+        workerId: metadata.workerId || null,
+        title: metadata.title || 'WhatsApp Message',
+        message: textMessage,
+        type: metadata.type || 'General',
+        deliveryChannel: 'whatsapp',
+        deliveryStatus: isSuccess ? 'delivered' : 'failed'
+      }).catch(err => console.error('Failed to log WhatsApp notification:', err));
     }
+
+    if (isSuccess) {
+      console.log(`[WhatsApp Success] Delivered to ${cleanPhone}:`, data);
+    } else {
+      console.error(`[WhatsApp API Error] for ${cleanPhone}:`, data);
+    }
+
+    return { success: isSuccess, data };
   } catch (error) {
-    return { success: false, status: 'failed', error: error.message };
+    console.error(`[WhatsApp Network Error] to ${cleanPhone}:`, error.message);
+    return { success: false, error: error.message };
   }
 };
 
 module.exports = {
-  sendWhatsAppTemplateMessage
+  sendWhatsAppMessage
 };

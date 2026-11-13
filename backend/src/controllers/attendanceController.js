@@ -3,6 +3,7 @@ const Worker = require('../models/Worker');
 const Transaction = require('../models/Transaction');
 const Notification = require('../models/Notification');
 const { sendSMS } = require('../services/smsService');
+const { sendWhatsAppMessage } = require('../services/whatsappService');
 const mongoose = require('mongoose');
 
 // @desc    Get attendance for a specific date across all active workers
@@ -173,12 +174,26 @@ exports.saveBulkAttendance = async (req, res) => {
         });
       }
 
-      // Send SMS alert to worker if present
+      // Send SMS and WhatsApp alert to worker if present
       if (units > 0 && worker.mobile) {
-        const smsMsg = `ShreeDev Paint Service: Namaste ${worker.name}, aapki date ${date} ki attendance (${units} unit) darj ho gayi hai. Aaj ki kamai: Rs.${earnedAmount}.`;
+        const msgText = `*ShreeDev Paint Service*\nNamaste ${worker.name}, aapki date ${date} ki attendance (${units} unit) darj ho gayi hai.\nAaj ki kamai: Rs.${earnedAmount}.\nTotal Ledger Balance: Rs.${newBalance < 0 ? `-Rs.${Math.abs(newBalance)} (Baqi)` : `Rs.${newBalance}`}`;
+        
+        // 1. WhatsApp Real-time Notification
+        sendWhatsAppMessage({
+          toPhone: worker.mobile,
+          textMessage: msgText,
+          metadata: {
+            businessId,
+            workerId: worker._id,
+            title: 'Attendance WhatsApp',
+            type: fullAttendance ? 'Full Attendance Marked' : 'Half Attendance Marked'
+          }
+        }).catch(err => console.error('WhatsApp dispatch error:', err));
+
+        // 2. Backup SMS
         sendSMS({
           toPhone: worker.mobile,
-          message: smsMsg,
+          message: `ShreeDev Paint: Namaste ${worker.name}, date ${date} ki hazri (${units} unit) darj. Kamai: Rs.${earnedAmount}.`,
           metadata: {
             businessId,
             workerId: worker._id,
