@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import AttendanceCalendarModal from '../components/AttendanceCalendarModal';
+import { AttendanceSkeleton } from '../components/ui/Skeletons';
 import { 
   getKolkataDateString, 
   formatReadableDate 
@@ -316,10 +317,8 @@ export default function Attendance() {
       </div>
 
       {/* 3. Mobile-First Worker Attendance Cards */}
-      {loading ? (
-        <div className="p-12 text-center text-xs text-navy bg-white border border-surface-border">
-          Loading attendance records for {selectedDate}...
-        </div>
+      {loading && attendanceList.length === 0 ? (
+        <AttendanceSkeleton />
       ) : attendanceList.length === 0 ? (
         <div className="p-12 text-center bg-white border border-surface-border rounded-sm space-y-2">
           <AlertCircle className="w-8 h-8 text-slate-300 mx-auto" />

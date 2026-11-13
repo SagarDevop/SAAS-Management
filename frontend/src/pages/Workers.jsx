@@ -13,6 +13,7 @@ import {
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import WorkerModal from '../components/WorkerModal';
+import { ListSkeleton } from '../components/ui/Skeletons';
 
 export default function Workers() {
   const [workers, setWorkers] = useState([]);
@@ -127,10 +128,8 @@ export default function Workers() {
       </div>
 
       {/* Worker List Cards / Desktop Table */}
-      {loading ? (
-        <div className="p-12 text-center text-xs text-surface-secondary bg-white border border-surface-border">
-          Loading worker directory...
-        </div>
+      {loading && workers.length === 0 ? (
+        <ListSkeleton />
       ) : workers.length === 0 ? (
         <div className="p-12 text-center bg-white border border-surface-border rounded-sm space-y-3">
           <Users className="w-10 h-10 text-slate-300 mx-auto" />

@@ -21,6 +21,7 @@ import {
 } from '../utils/dateTime';
 import WorkerModal from '../components/WorkerModal';
 import TransactionModal from '../components/TransactionModal';
+import { DashboardSkeleton } from '../components/ui/Skeletons';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -142,6 +143,10 @@ export default function Dashboard() {
 
   const recentAttendance = data?.todayAttendanceTable || [];
   const recentActivities = data?.recentActivities || [];
+
+  if (loading && !data) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="space-y-6">

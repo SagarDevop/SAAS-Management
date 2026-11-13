@@ -12,6 +12,7 @@ import {
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import TransactionModal from '../components/TransactionModal';
+import { ListSkeleton } from '../components/ui/Skeletons';
 
 export default function WalletLedger() {
   const [data, setData] = useState(null);
@@ -188,8 +189,8 @@ export default function WalletLedger() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="p-8 text-center text-xs text-navy">Loading financial records...</div>
+        {loading && !data ? (
+          <ListSkeleton />
         ) : workerLedgers.length === 0 ? (
           <div className="p-8 text-center text-xs text-surface-secondary">
             No worker records match your search filter.
