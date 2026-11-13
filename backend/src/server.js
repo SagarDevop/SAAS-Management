@@ -71,6 +71,27 @@ app.get(['/api/health', '/health', '/'], (req, res) => {
   });
 });
 
+// Webhook Verification & Listener for WhatsApp Cloud API Production Setup
+const WEBHOOK_VERIFY_TOKEN = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || 'shreedev_paint_webhook_verify_2026';
+
+app.get(['/api/webhook', '/webhook'], (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+
+  if (mode === 'subscribe' && token === WEBHOOK_VERIFY_TOKEN) {
+    console.log('✓ WhatsApp Webhook verified successfully by Meta!');
+    return res.status(200).send(challenge);
+  } else {
+    return res.status(403).json({ error: 'Verification token mismatch' });
+  }
+});
+
+app.post(['/api/webhook', '/webhook'], (req, res) => {
+  // Acknowledge receipt of delivery status or incoming message immediately
+  res.status(200).send('EVENT_RECEIVED');
+});
+
 // Centralized error handler
 app.use((err, req, res, next) => {
   console.error('Unhandled Server Error:', err.stack);
