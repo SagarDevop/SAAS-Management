@@ -74,6 +74,10 @@ export default function Workers() {
     fetchWorkers();
   };
 
+  if (loading && workers.length === 0) {
+    return <ListSkeleton />;
+  }
+
   return (
     <div className="space-y-5">
       {/* Page Title & Add Button */}

@@ -144,12 +144,12 @@ export default function Dashboard() {
   const recentAttendance = data?.todayAttendanceTable || [];
   const recentActivities = data?.recentActivities || [];
 
-  if (loading && !data) {
+  if (loading || !data) {
     return <DashboardSkeleton />;
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* 1. Header with Dynamic Greeting, Live Clock & Indian Date */}
       <div className="bg-white p-4 sm:p-6 border border-surface-border rounded-sm shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

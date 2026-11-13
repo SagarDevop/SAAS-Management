@@ -194,8 +194,12 @@ export default function Attendance() {
     }
   };
 
+  if (loading && attendanceList.length === 0) {
+    return <AttendanceSkeleton />;
+  }
+
   return (
-    <div className="space-y-5 pb-20 md:pb-0">
+    <div className="space-y-4 pb-24 md:pb-0">
       {/* 1. Header with Prominent Selected Date & Calendar Stepper */}
       <div className="bg-white p-4 sm:p-5 border border-surface-border rounded-sm shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-surface-border pb-3">

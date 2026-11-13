@@ -69,6 +69,10 @@ export default function WalletLedger() {
 
   const recentTransactions = data?.recentTransactions || [];
 
+  if (loading && !data) {
+    return <ListSkeleton />;
+  }
+
   return (
     <div className="space-y-6">
       {/* 1. Header with Clear Quick Action Buttons */}
