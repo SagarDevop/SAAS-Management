@@ -8,7 +8,8 @@ import {
   Edit3, 
   Power,
   Phone,
-  Wallet
+  Wallet,
+  Trash2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
@@ -56,6 +57,25 @@ export default function Workers() {
       }
     } catch (err) {
       alert('Failed to update status');
+    }
+  };
+
+  const handleDeleteWorker = async (worker, e) => {
+    e.stopPropagation();
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete "${worker.name}" (${worker.workerId})?\n\nThis will remove all historical attendance and financial transactions for this worker.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.delete(`/workers/${worker._id}`);
+      if (res.data?.success) {
+        setWorkers(prev => prev.filter(w => w._id !== worker._id));
+      } else {
+        alert(res.data?.message || 'Failed to delete worker');
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error deleting worker');
     }
   };
 
@@ -247,6 +267,13 @@ export default function Workers() {
                       className="p-1.5 text-surface-secondary hover:text-navy hover:bg-surface-bg rounded-sm"
                     >
                       <Power className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => handleDeleteWorker(worker, e)}
+                      title="Delete Worker Permanently"
+                      className="p-1.5 text-slate-400 hover:text-status-danger hover:bg-red-50 rounded-sm transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>

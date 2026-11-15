@@ -5,7 +5,8 @@ const {
   getWorkerById,
   createWorker,
   updateWorker,
-  toggleWorkerStatus
+  toggleWorkerStatus,
+  deleteWorker
 } = require('../controllers/workerController');
 const { protect } = require('../middleware/auth');
 
@@ -17,7 +18,8 @@ router.route('/')
 
 router.route('/:id')
   .get(getWorkerById)
-  .put(updateWorker);
+  .put(updateWorker)
+  .delete(deleteWorker);
 
 router.route('/:id/status')
   .patch(toggleWorkerStatus);

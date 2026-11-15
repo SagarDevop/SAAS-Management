@@ -312,3 +312,43 @@ exports.toggleWorkerStatus = async (req, res) => {
   }
 };
 
+// @desc    Delete Worker permanently along with associated attendance and transactions
+// @route   DELETE /api/workers/:id
+exports.deleteWorker = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const businessId = req.businessId;
+
+    const worker = await Worker.findOne({ _id: id, businessId });
+    if (!worker) {
+      return res.status(404).json({ success: false, message: 'Worker not found' });
+    }
+
+    // Clean up related attendance records, transactions, and worker notifications
+    await Attendance.deleteMany({ workerId: id, businessId });
+    await Transaction.deleteMany({ workerId: id, businessId });
+    await Notification.deleteMany({ workerId: id, businessId });
+
+    // Delete the worker record
+    await Worker.deleteOne({ _id: id, businessId });
+
+    // Log in notifications
+    await Notification.create({
+      businessId,
+      title: 'Worker Deleted',
+      message: `Worker ${worker.name} (${worker.workerId}) and all their historical attendance & ledger records have been removed.`,
+      type: 'General',
+      deliveryChannel: 'in_app'
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Worker ${worker.name} (${worker.workerId}) deleted successfully`
+    });
+  } catch (err) {
+    console.error('deleteWorker error:', err);
+    res.status(500).json({ success: false, message: 'Server error deleting worker' });
+  }
+};
+
+

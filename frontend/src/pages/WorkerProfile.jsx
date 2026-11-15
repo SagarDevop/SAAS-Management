@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Phone, 
   Download, 
   CreditCard, 
-  FileText
+  FileText,
+  Trash2,
+  MessageSquare
 } from 'lucide-react';
 import api from '../services/api';
 import { generateWorkerStatementPDF, shareWorkerStatementOnWhatsApp } from '../utils/pdfGenerator';
-import { MessageSquare } from 'lucide-react';
 
 export default function WorkerProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('summary'); // summary, attendance, ledger
@@ -65,6 +67,25 @@ export default function WorkerProfile() {
     });
   };
 
+  const handleDeleteWorker = async () => {
+    const confirmed = window.confirm(
+      `Permanently delete worker "${worker.name}" (${worker.workerId})?\n\nWarning: This action cannot be undone and will delete all associated attendance and ledger transactions.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.delete(`/workers/${worker._id}`);
+      if (res.data?.success) {
+        alert(`Worker ${worker.name} successfully deleted.`);
+        navigate('/workers');
+      } else {
+        alert(res.data?.message || 'Failed to delete worker');
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error deleting worker');
+    }
+  };
+
   return (
     <div className="space-y-5">
       {/* Back button & Action Header */}
@@ -92,6 +113,15 @@ export default function WorkerProfile() {
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export Statement (PDF)</span>
+          </button>
+
+          <button
+            onClick={handleDeleteWorker}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-status-danger border border-red-200 hover:bg-status-danger hover:text-white text-xs font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer shadow-sm"
+            title="Delete this worker permanently"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Delete Worker</span>
           </button>
         </div>
       </div>
