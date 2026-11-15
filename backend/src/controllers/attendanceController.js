@@ -155,9 +155,10 @@ exports.saveBulkAttendance = async (req, res) => {
 
       // Sync worker wallet and ledger if wage difference exists
       // Accounting Rule: Earning wages increases liability to worker, so wallet balance reduces (becomes more negative)
+      let currentWorkerBalance = worker.walletBalance;
       if (wageDifference !== 0) {
-        const newBalance = worker.walletBalance - wageDifference;
-        worker.walletBalance = newBalance;
+        currentWorkerBalance = worker.walletBalance - wageDifference;
+        worker.walletBalance = currentWorkerBalance;
         await worker.save();
 
         // Record transaction
@@ -168,7 +169,7 @@ exports.saveBulkAttendance = async (req, res) => {
           amount: Math.abs(wageDifference),
           direction: wageDifference > 0 ? 'debit' : 'credit', // debit = owes worker more
           description: `Attendance adjustment for ${date}: ${units} units (Full: ${fullAttendance ? 'Yes' : 'No'}, Half: ${halfAttendance ? 'Yes' : 'No'})`,
-          balanceAfter: newBalance,
+          balanceAfter: currentWorkerBalance,
           date: new Date(date),
           createdBy: userId
         });
@@ -176,7 +177,7 @@ exports.saveBulkAttendance = async (req, res) => {
 
       // Send SMS and WhatsApp alert to worker if present
       if (units > 0 && worker.mobile) {
-        const msgText = `*ShreeDev Paint Service*\nNamaste ${worker.name}, aapki date ${date} ki attendance (${units} unit) darj ho gayi hai.\nAaj ki kamai: Rs.${earnedAmount}.\nTotal Ledger Balance: Rs.${newBalance < 0 ? `-Rs.${Math.abs(newBalance)} (Baqi)` : `Rs.${newBalance}`}`;
+        const msgText = `*ShreeDev Paint Service*\nNamaste ${worker.name}, aapki date ${date} ki attendance (${units} unit) darj ho gayi hai.\nAaj ki kamai: Rs.${earnedAmount}.\nTotal Ledger Balance: Rs.${currentWorkerBalance < 0 ? `-Rs.${Math.abs(currentWorkerBalance)} (Baqi)` : `Rs.${currentWorkerBalance}`}`;
         
         // 1. WhatsApp Real-time Notification
         sendWhatsAppMessage({

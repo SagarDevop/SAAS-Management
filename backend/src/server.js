@@ -62,14 +62,30 @@ app.use(['/api/reports', '/reports'], reportRoutes);
 app.use(['/api/notifications', '/notifications'], notificationRoutes);
 app.use(['/api/media', '/media'], uploadRoutes);
 
-// Health Check API
-app.get(['/api/health', '/health', '/'], (req, res) => {
+// Health Check & Self-Ping Keep-Alive Endpoint
+app.get(['/api/health', '/health', '/api/ping', '/ping', '/'], (req, res) => {
   res.status(200).json({
     status: 'online',
     app: 'ShreeDev Paint Service SaaS Backend',
+    uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString()
   });
 });
+
+// Self-ping service to keep Render server awake (free tier sleeps after 15 mins of inactivity)
+const SELF_URL = process.env.RENDER_EXTERNAL_URL || 'https://saas-management-9qo3.onrender.com';
+if (process.env.NODE_ENV !== 'test') {
+  // Ping every 10 minutes (600,000 ms) so Render never goes into idle sleep
+  setInterval(async () => {
+    try {
+      const pingUrl = `${SELF_URL.replace(/\/+$/, '')}/api/health`;
+      await fetch(pingUrl);
+      console.log(`[Keep-Alive Ping] Pinged ${pingUrl} at ${new Date().toISOString()}`);
+    } catch (err) {
+      console.warn('[Keep-Alive Ping Failed]:', err.message);
+    }
+  }, 10 * 60 * 1000);
+}
 
 // Webhook Verification & Listener for WhatsApp Cloud API Production Setup
 const WEBHOOK_VERIFY_TOKEN = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || 'shreedev_paint_webhook_verify_2026';
