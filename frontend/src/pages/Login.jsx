@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Lock, User, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, Building, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import InstallPwaPrompt from '../components/InstallPwaPrompt';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -16,16 +16,16 @@ export default function Login() {
     e.preventDefault();
     setError('');
 
-    if (!username.trim() || !password) {
-      setError('Please enter both username and password.');
+    if (!identifier.trim() || !password) {
+      setError('Please enter your email and password.');
       return;
     }
 
-    const res = await login(username.trim(), password);
+    const res = await login(identifier.trim(), password);
     if (res.success) {
       navigate('/dashboard');
     } else {
-      setError(res.message || 'Invalid credentials.');
+      setError(res.message || 'Invalid email or password.');
     }
   };
 
@@ -34,46 +34,46 @@ export default function Login() {
       {/* Brand Header */}
       <div className="w-full max-w-sm mb-6 text-center">
         <div className="inline-flex items-center justify-center w-12 h-12 bg-navy text-white rounded mb-3 shadow-sm">
-          <ShieldCheck className="w-6 h-6 text-white" />
+          <Building className="w-6 h-6 text-white" />
         </div>
-        <h1 className="text-xl font-bold tracking-tight text-navy uppercase">
-          ShreeDev Paint Service
+        <h1 className="text-2xl font-black tracking-tight text-navy uppercase">
+          KaamSetu <span className="text-xs font-normal opacity-70 tracking-normal capitalize block text-[#5E6C84]">कामसेतु • Labour & Attendance SaaS</span>
         </h1>
         <p className="text-xs text-surface-secondary mt-1 font-medium">
-          Labour Management System
+          Sign in to your business workspace
         </p>
       </div>
 
       {/* Login Card */}
       <div className="w-full max-w-sm bg-white border border-surface-border p-6 shadow-sm rounded-sm">
         <div className="mb-5 pb-3 border-b border-surface-border">
-          <h2 className="text-base font-semibold text-navy">Owner Login</h2>
+          <h2 className="text-base font-semibold text-navy">Business Sign In</h2>
           <p className="text-xs text-surface-secondary mt-0.5">
-            Sign in to access daily attendance and labour records
+            Enter your registered Gmail and password
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border-l-4 border-status-danger text-status-danger text-xs font-medium">
+          <div className="mb-4 p-3 bg-red-50 border-l-4 border-status-danger text-status-danger text-xs">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-navy uppercase tracking-wider mb-1.5">
-              Username
+            <label className="block text-xs font-medium text-navy mb-1.5">
+              Gmail / Username
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-surface-secondary">
-                <User className="w-4 h-4" />
+                <Mail className="w-4 h-4 text-slate-400" />
               </span>
               <input
                 type="text"
-                autoComplete="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter username"
+                autoComplete="email"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="e.g. name@gmail.com"
                 className="w-full pl-9 pr-3 py-2.5 text-sm bg-surface-bg/50 border border-surface-border rounded-sm text-navy placeholder-surface-secondary/70 focus:outline-none focus:bg-white focus:border-navy transition-colors"
                 required
               />
@@ -81,12 +81,12 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-navy uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-medium text-navy mb-1.5">
               Password
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-surface-secondary">
-                <Lock className="w-4 h-4" />
+                <Lock className="w-4 h-4 text-slate-400" />
               </span>
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -111,22 +111,25 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 bg-navy hover:bg-navy-800 text-white text-sm font-semibold rounded-sm transition-colors flex items-center justify-center shadow-sm disabled:opacity-60 cursor-pointer"
+              className="w-full py-2.5 px-4 bg-navy hover:bg-navy-800 text-white text-xs font-bold uppercase tracking-wider rounded-sm transition-colors flex items-center justify-center shadow-sm disabled:opacity-60 cursor-pointer"
             >
               {loading ? 'Authenticating...' : 'Sign In'}
             </button>
           </div>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-surface-border text-center">
-          <p className="text-[11px] text-surface-secondary">
-            Authorized Personnel Only • Secure Access
+        <div className="mt-6 pt-4 border-t border-surface-border text-center space-y-2">
+          <p className="text-xs text-surface-secondary">
+            New Business / Contractor?{' '}
+            <Link to="/signup" className="text-navy font-bold hover:underline">
+              Create New Account
+            </Link>
           </p>
         </div>
       </div>
 
       <div className="mt-8 text-center text-xs text-surface-secondary font-medium">
-        &copy; {new Date().getFullYear()} ShreeDev Paint Service
+        &copy; {new Date().getFullYear()} KaamSetu • Multi-Tenant SaaS
       </div>
 
       {/* 1-Tap PWA Install App Popup for first-time visitors */}
@@ -134,4 +137,3 @@ export default function Login() {
     </div>
   );
 }
-

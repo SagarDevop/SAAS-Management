@@ -97,7 +97,7 @@ export default function InstallPwaPrompt() {
             </div>
 
             <p className="text-[11px] text-white/80 mt-1 leading-snug">
-              Apne mobile ya PC me <strong>ShreeDev Paint SaaS</strong> direct install karein fast attendance aur hisab ke liye.
+              Apne phone ya laptop me <strong>KaamSetu App</strong> direct install karein fast attendance aur hisab ke liye.
             </p>
 
             <div className="mt-3 flex items-center gap-2">

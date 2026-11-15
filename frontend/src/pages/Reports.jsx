@@ -19,9 +19,11 @@ import {
   CartesianGrid 
 } from 'recharts';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { generateMonthlyReportPDF } from '../utils/pdfGenerator';
 
 export default function Reports() {
+  const { business } = useAuth();
   const [viewMode, setViewMode] = useState('monthly'); // 'monthly' | 'yearly'
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -76,7 +78,7 @@ export default function Reports() {
     if (!monthlyData) return;
     const reportMonth = `${monthNames[selectedMonth - 1]} ${selectedYear}`;
     generateMonthlyReportPDF({
-      businessName: 'ShreeDev Paint Service',
+      businessName: business?.name || 'KaamSetu Enterprise',
       reportMonth,
       summary: monthlyData.summary,
       workerBreakdown: monthlyData.workerBreakdown

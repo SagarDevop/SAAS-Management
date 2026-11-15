@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'ShreeDev Paint Service - Labour SaaS',
-        short_name: 'ShreeDev',
-        description: 'Mobile-first Labour Management SaaS for ShreeDev Paint Service',
+        name: 'KaamSetu - Labour & Attendance SaaS',
+        short_name: 'KaamSetu',
+        description: 'Multi-tenant Labour & Attendance Management SaaS Platform',
         theme_color: '#172B4D',
         background_color: '#172B4D',
         display: 'standalone',

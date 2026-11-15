@@ -15,7 +15,7 @@ export default function ProtectedRoute({ children }) {
           </div>
           <div>
             <h2 className="text-sm font-bold text-[#172B4D] tracking-wide uppercase">
-              ShreeDev Paint Service
+              KaamSetu कामसेतु
             </h2>
             <p className="text-xs text-[#5E6C84] mt-1 font-medium">
               Connecting to secure server...

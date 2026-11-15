@@ -7,12 +7,13 @@ async function seedInitialData() {
     let biz;
     if (businessCount === 0) {
       biz = await Business.create({
-        name: 'ShreeDev Paint Service',
-        ownerName: 'ShreeDev Admin',
+        name: 'Demo Enterprise',
+        ownerName: 'Admin',
+        ownerEmail: 'admin@kaamsetu.com',
         phone: '9876543210',
-        address: 'Main Market, City Center'
+        address: 'KaamSetu Central'
       });
-      console.log('✓ Seeded Business: ShreeDev Paint Service');
+      console.log('✓ Seeded Default KaamSetu Demo Business');
     } else {
       biz = await Business.findOne();
     }
@@ -21,15 +22,15 @@ async function seedInitialData() {
     if (userCount === 0) {
       await User.create({
         businessId: biz._id,
+        email: 'admin@kaamsetu.com',
         username: 'admin',
         password: 'password123',
-        name: 'ShreeDev Owner',
-        role: 'owner'
+        name: 'KaamSetu Admin',
+        role: 'owner',
+        isVerified: true
       });
-      console.log('✓ Seeded Owner Account: admin / password123');
+      console.log('✓ Seeded Master Account: admin@kaamsetu.com / password123');
     }
-
-    // Production ready: No dummy workers or test attendance records seeded.
   } catch (err) {
     console.error('Seeding error:', err);
   }

@@ -8,10 +8,16 @@ const UserSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  username: {
+  email: {
     type: String,
     required: true,
     unique: true,
+    trim: true,
+    lowercase: true,
+    index: true
+  },
+  username: {
+    type: String,
     trim: true,
     lowercase: true
   },
@@ -24,10 +30,18 @@ const UserSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  phone: {
+    type: String,
+    trim: true
+  },
   role: {
     type: String,
     enum: ['owner', 'admin'],
     default: 'owner'
+  },
+  isVerified: {
+    type: Boolean,
+    default: true
   },
   isActive: {
     type: Boolean,
@@ -46,4 +60,3 @@ UserSchema.methods.comparePassword = async function(candidatePassword) {
 };
 
 module.exports = mongoose.model('User', UserSchema);
-

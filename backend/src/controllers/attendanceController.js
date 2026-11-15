@@ -175,9 +175,10 @@ exports.saveBulkAttendance = async (req, res) => {
         });
       }
 
-      // Send SMS and WhatsApp alert to worker if present
-      if (units > 0 && worker.mobile) {
-        const msgText = `*ShreeDev Paint Service*\nNamaste ${worker.name}, aapki date ${date} ki attendance (${units} unit) darj ho gayi hai.\nAaj ki kamai: Rs.${earnedAmount}.\nTotal Ledger Balance: Rs.${currentWorkerBalance < 0 ? `-Rs.${Math.abs(currentWorkerBalance)} (Baqi)` : `Rs.${currentWorkerBalance}`}`;
+      // Worker Notification (Muted in initial phase as per SaaS configuration)
+      const shouldNotifyWorkers = process.env.ENABLE_WORKER_NOTIFICATIONS === 'true';
+      if (shouldNotifyWorkers && units > 0 && worker.mobile) {
+        const msgText = `*KaamSetu Attendance Alert*\nNamaste ${worker.name}, aapki date ${date} ki attendance (${units} unit) darj ho gayi hai.\nAaj ki kamai: Rs.${earnedAmount}.\nTotal Ledger Balance: Rs.${currentWorkerBalance < 0 ? `-Rs.${Math.abs(currentWorkerBalance)} (Baqi)` : `Rs.${currentWorkerBalance}`}`;
         
         // 1. WhatsApp Real-time Notification
         sendWhatsAppMessage({
@@ -194,7 +195,7 @@ exports.saveBulkAttendance = async (req, res) => {
         // 2. Backup SMS
         sendSMS({
           toPhone: worker.mobile,
-          message: `ShreeDev Paint: Namaste ${worker.name}, date ${date} ki hazri (${units} unit) darj. Kamai: Rs.${earnedAmount}.`,
+          message: `KaamSetu: Namaste ${worker.name}, date ${date} ki hazri (${units} unit) darj. Kamai: Rs.${earnedAmount}.`,
           metadata: {
             businessId,
             workerId: worker._id,

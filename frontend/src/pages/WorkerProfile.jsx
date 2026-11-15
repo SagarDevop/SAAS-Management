@@ -10,11 +10,13 @@ import {
   MessageSquare
 } from 'lucide-react';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { generateWorkerStatementPDF, shareWorkerStatementOnWhatsApp } from '../utils/pdfGenerator';
 
 export default function WorkerProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { business } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('summary'); // summary, attendance, ledger
@@ -58,7 +60,7 @@ export default function WorkerProfile() {
 
   const handleExportPDF = () => {
     generateWorkerStatementPDF({
-      businessName: 'ShreeDev Paint Service',
+      businessName: business?.name || 'KaamSetu Enterprise',
       worker,
       summary,
       attendances,

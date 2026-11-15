@@ -5,12 +5,17 @@ const BusinessSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    default: 'ShreeDev Paint Service'
+    default: 'My Enterprise'
   },
   ownerName: {
     type: String,
     required: true,
     trim: true
+  },
+  ownerEmail: {
+    type: String,
+    trim: true,
+    lowercase: true
   },
   phone: {
     type: String,
@@ -20,6 +25,10 @@ const BusinessSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  category: {
+    type: String,
+    default: 'Labour / Contractor'
+  },
   isActive: {
     type: Boolean,
     default: true
@@ -27,4 +36,3 @@ const BusinessSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Business', BusinessSchema);
-

@@ -11,7 +11,7 @@ const api = axios.create({
 // Intercept requests to attach Bearer token if stored (fallback for mobile browser storage)
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('shreedev_auth_token');
+    const token = localStorage.getItem('kaamsetu_auth_token') || localStorage.getItem('shreedev_auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -26,9 +26,12 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       // Clear token and user storage if unauthorized
+      localStorage.removeItem('kaamsetu_auth_token');
+      localStorage.removeItem('kaamsetu_auth_user');
+      localStorage.removeItem('kaamsetu_business');
       localStorage.removeItem('shreedev_auth_token');
       localStorage.removeItem('shreedev_auth_user');
-      if (window.location.pathname !== '/login') {
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
         window.location.href = '/login';
       }
     }
@@ -37,4 +40,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { 
   getKolkataGreeting, 
   getKolkataLiveTime, 
@@ -25,6 +26,7 @@ import { DashboardSkeleton } from '../components/ui/Skeletons';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user, business } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(getKolkataLiveTime());
@@ -155,14 +157,14 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs uppercase tracking-wider font-bold text-navy bg-surface-bg px-2.5 py-1 rounded-sm border border-surface-border">
-              {getKolkataGreeting()}, Owner
+              {getKolkataGreeting()}, {user?.name || 'Owner'}
             </span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-navy mt-1.5 tracking-tight">
-            ShreeDev Paint Service
+            {business?.name || user?.businessName || 'My Enterprise'}
           </h1>
           <p className="text-xs text-surface-secondary mt-0.5">
-            Daily Labour & Attendance Overview
+            Daily Labour & Attendance Overview • KaamSetu SaaS
           </p>
         </div>
 
