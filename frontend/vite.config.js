@@ -8,21 +8,35 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'ShreeDev Paint Service - Labour SaaS',
         short_name: 'ShreeDev',
         description: 'Mobile-first Labour Management SaaS for ShreeDev Paint Service',
         theme_color: '#172B4D',
-        background_color: '#F5F7FA',
+        background_color: '#172B4D',
         display: 'standalone',
+        start_url: '/',
+        scope: '/',
         orientation: 'portrait',
         icons: [
           {
-            src: '/icon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
+            src: '/pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       }

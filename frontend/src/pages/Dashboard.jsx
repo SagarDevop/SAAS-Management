@@ -368,7 +368,12 @@ export default function Dashboard() {
         isOpen={isWorkerModalOpen}
         onClose={() => setIsWorkerModalOpen(false)}
         worker={null}
-        onSave={() => fetchDashboard()}
+        onSave={(newWorker) => {
+          if (newWorker) {
+            setWorkersList(prev => [newWorker, ...prev]);
+          }
+          fetchDashboard();
+        }}
       />
 
       {/* Quick Action Modal: Add Payment / Advance */}

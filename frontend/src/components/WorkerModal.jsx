@@ -87,11 +87,15 @@ export default function WorkerModal({ isOpen, onClose, worker, onSave }) {
       }
 
       if (res.data?.success) {
+        // Immediately notify parent component with the saved/created worker for live UI updates
+        if (onSave) {
+          onSave(res.data.worker);
+        }
+
         if (!isEditing) {
           setCreatedWorker(res.data.worker);
           setShowWhatsAppOption(true);
         } else {
-          onSave(res.data.worker);
           onClose();
         }
       }

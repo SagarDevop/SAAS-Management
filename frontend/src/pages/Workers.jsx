@@ -90,7 +90,21 @@ export default function Workers() {
     setIsModalOpen(true);
   };
 
-  const handleSaveWorker = () => {
+  const handleSaveWorker = (savedWorker) => {
+    // 1. Immediately update state in-memory so UI updates instantly without any refresh
+    if (savedWorker) {
+      setWorkers(prev => {
+        const index = prev.findIndex(w => w._id === savedWorker._id);
+        if (index >= 0) {
+          const updated = [...prev];
+          updated[index] = savedWorker;
+          return updated;
+        } else {
+          return [savedWorker, ...prev];
+        }
+      });
+    }
+    // 2. Also re-fetch in background to sync database counts
     fetchWorkers();
   };
 
