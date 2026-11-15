@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { DesktopSidebar, MobileHeader, MobileBottomNav } from './Navigation';
+import InstallPwaPrompt from '../InstallPwaPrompt';
 
 export default function AppShell() {
   return (
@@ -20,6 +21,9 @@ export default function AppShell() {
 
         {/* Mobile Bottom Navigation */}
         <MobileBottomNav />
+
+        {/* 1-Tap PWA Install App Popup */}
+        <InstallPwaPrompt />
       </div>
     </div>
   );

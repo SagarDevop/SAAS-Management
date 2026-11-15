@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Eye, EyeOff, Lock, User, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import InstallPwaPrompt from '../components/InstallPwaPrompt';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -127,6 +128,9 @@ export default function Login() {
       <div className="mt-8 text-center text-xs text-surface-secondary font-medium">
         &copy; {new Date().getFullYear()} ShreeDev Paint Service
       </div>
+
+      {/* 1-Tap PWA Install App Popup for first-time visitors */}
+      <InstallPwaPrompt />
     </div>
   );
 }
