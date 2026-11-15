@@ -1,9 +1,9 @@
 /**
  * Brevo (Sendinblue) Transactional Email Service
- * Sends branded OTP verification emails using native fetch (Zero extra dependencies)
+ * Sends branded OTP verification and password reset emails using native fetch
  */
 
-const sendEmailOTP = async ({ toEmail, toName, otp, businessName }) => {
+const sendEmailOTP = async ({ toEmail, toName, otp, businessName, purpose = 'signup' }) => {
   const apiKey = process.env.BREVO_API_KEY;
   const senderEmail = process.env.SENDER_EMAIL || 'warshasingh21@gmail.com';
   const senderName = process.env.SENDER_NAME || 'KaamSetu';
@@ -13,13 +13,23 @@ const sendEmailOTP = async ({ toEmail, toName, otp, businessName }) => {
     return { success: true, simulated: true };
   }
 
+  const isPasswordReset = purpose === 'forgot_password';
+  const heading = isPasswordReset ? 'Password Reset Verification' : 'Welcome to KaamSetu';
+  const subject = isPasswordReset 
+    ? `${otp} is your KaamSetu Password Reset Code`
+    : `${otp} is your KaamSetu verification code`;
+
+  const instructionText = isPasswordReset
+    ? `We received a request to reset the password for your KaamSetu account. Please use the One-Time Password (OTP) below to securely set your new password:`
+    : `Thank you for choosing <strong>KaamSetu</strong>${businessName ? ` for <strong>${businessName}</strong>` : ''}. Please use the following One-Time Password (OTP) to verify your Gmail and activate your SaaS workspace:`;
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>KaamSetu Verification Code</title>
+        <title>${heading}</title>
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F4F5F7; margin: 0; padding: 24px; color: #172B4D;">
         <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 520px; background-color: #ffffff; border: 1px solid #DFE1E6; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 4px rgba(9,30,66,0.08);">
@@ -37,10 +47,10 @@ const sendEmailOTP = async ({ toEmail, toName, otp, businessName }) => {
           <tr>
             <td style="padding: 32px;">
               <h2 style="font-size: 16px; font-weight: 700; color: #172B4D; margin: 0 0 12px 0;">
-                Namaste ${toName || 'Business Owner'},
+                Namaste ${toName || 'User'},
               </h2>
               <p style="font-size: 13px; line-height: 1.6; color: #5E6C84; margin: 0 0 20px 0;">
-                Thank you for choosing <strong>KaamSetu</strong>${businessName ? ` for <strong>${businessName}</strong>` : ''}. Please use the following One-Time Password (OTP) to verify your Gmail and activate your SaaS workspace:
+                ${instructionText}
               </p>
               
               <!-- OTP Box -->
@@ -52,7 +62,7 @@ const sendEmailOTP = async ({ toEmail, toName, otp, businessName }) => {
               </div>
               
               <p style="font-size: 12px; color: #7A869A; line-height: 1.5; margin: 20px 0 0 0;">
-                If you did not request this verification code, please ignore this email. Never share this code with anyone.
+                If you did not request this, please ignore this email or change your account credentials immediately. Never share this code with anyone.
               </p>
             </td>
           </tr>
@@ -79,7 +89,7 @@ const sendEmailOTP = async ({ toEmail, toName, otp, businessName }) => {
         name: toName || 'User'
       }
     ],
-    subject: `${otp} is your KaamSetu verification code`,
+    subject: subject,
     htmlContent: htmlContent
   };
 
@@ -100,7 +110,7 @@ const sendEmailOTP = async ({ toEmail, toName, otp, businessName }) => {
       return { success: false, error: data.message || 'Brevo dispatch error' };
     }
 
-    console.log(`✓ Brevo OTP email sent to ${toEmail} (MessageId: ${data.messageId})`);
+    console.log(`✓ Brevo OTP email sent to ${toEmail} for ${purpose} (MessageId: ${data.messageId})`);
     return { success: true, messageId: data.messageId };
   } catch (error) {
     console.error('[Brevo Dispatch Failure]:', error);

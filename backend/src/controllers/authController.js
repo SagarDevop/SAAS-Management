@@ -239,6 +239,122 @@ exports.getMe = async (req, res) => {
   }
 };
 
+// @desc    Step 1: Request Password Reset OTP via Brevo Email
+// @route   POST /api/auth/forgot-password-otp
+exports.sendForgotPasswordOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Gmail address is required' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const user = await User.findOne({
+      $or: [{ email: cleanEmail }, { username: cleanEmail }]
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No registered KaamSetu account found with this email'
+      });
+    }
+
+    const otpCode = generate6DigitOtp();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    await Otp.deleteMany({ email: user.email, purpose: 'forgot_password' });
+    await Otp.create({
+      email: user.email,
+      otp: otpCode,
+      name: user.name,
+      purpose: 'forgot_password',
+      expiresAt
+    });
+
+    const emailResult = await sendEmailOTP({
+      toEmail: user.email,
+      toName: user.name,
+      otp: otpCode,
+      purpose: 'forgot_password'
+    });
+
+    if (!emailResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send password reset code via email'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Password reset code sent to ${user.email}. Check your inbox.`
+    });
+  } catch (err) {
+    console.error('sendForgotPasswordOtp error:', err);
+    res.status(500).json({ success: false, message: 'Server error sending password reset OTP' });
+  }
+};
+
+// @desc    Step 2: Verify Reset OTP & Update Password
+// @route   POST /api/auth/reset-password
+exports.resetPasswordWithOtp = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, OTP, and new password are required'
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters'
+      });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanOtp = otp.toString().trim();
+
+    const otpDoc = await Otp.findOne({
+      email: cleanEmail,
+      otp: cleanOtp,
+      purpose: 'forgot_password',
+      expiresAt: { $gt: new Date() }
+    });
+
+    if (!otpDoc) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP code. Please request a new one.'
+      });
+    }
+
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Set new password (pre-save hook hashes it)
+    user.password = newPassword;
+    await user.save();
+
+    // Remove used OTP
+    await Otp.deleteMany({ email: cleanEmail, purpose: 'forgot_password' });
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successful! You can now log in with your new password.'
+    });
+  } catch (err) {
+    console.error('resetPasswordWithOtp error:', err);
+    res.status(500).json({ success: false, message: 'Server error resetting password' });
+  }
+};
+
 // @desc    Logout User
 // @route   POST /api/auth/logout
 exports.logout = (req, res) => {

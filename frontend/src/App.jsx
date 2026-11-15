@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AppShell from './components/layout/AppShell';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Workers from './pages/Workers';
 import WorkerProfile from './pages/WorkerProfile';
@@ -20,6 +21,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           
           <Route
             path="/"
